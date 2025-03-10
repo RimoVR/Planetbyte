@@ -128,3 +128,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Version control list - always keep these lines
+!/.gitignore
+!/src/
+!/src/**
+!/package.json
+!/README.md
+!/docs/
+!/docs/**
