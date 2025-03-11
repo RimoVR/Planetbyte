@@ -1,0 +1,26 @@
+{
+  "name": "@planetbyte/common",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared code between client and server for PlanetByte game",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --ext ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "colyseus.js": "^0.15.0"
+  },
+  "devDependencies": {
+    "@planetbyte/config-eslint": "workspace:*",
+    "@planetbyte/config-prettier": "workspace:*",
+    "@planetbyte/config-tsconfig": "workspace:*",
+    "@types/jest": "^29.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "prettier": "^2.0.0",
+    "typescript": "^5.0.0"
+  }
+}

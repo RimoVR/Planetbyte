@@ -1,0 +1,137 @@
+# PlanetByte Project Intelligence
+
+This file captures important patterns, preferences, and project intelligence for the PlanetByte project. It serves as a learning journal to help work more effectively with the project and its specific requirements.
+
+## Project Structure
+
+- **Memory Bank System**: This project uses a custom memory-bank system for persistent documentation and context tracking. NEVER use the built-in memories system or create_memory tool.
+- **Documentation Hierarchy**: The memory bank follows a specific hierarchy with projectbrief.md as the foundation document, which informs productContext.md, systemPatterns.md, and techContext.md, which in turn inform activeContext.md, which informs progress.md.
+- **Core Files**: Required memory bank files include projectbrief.md, productContext.md, activeContext.md, systemPatterns.md, techContext.md, progress.md, and decisionLog.md.
+
+## Development Patterns
+
+### Architecture Patterns
+
+- **Server Authority**: All critical game logic and calculations must be performed server-side to prevent cheating.
+- **Client Prediction**: Use client-side prediction for responsive gameplay, with server reconciliation to correct discrepancies.
+- **Spatial Partitioning**: The game world is divided into grid cells with overlapping boundaries for efficient updates.
+- **Component-Entity-System**: Game objects are managed using a component-entity-system architecture for flexibility and performance.
+- **Shared Deterministic Modules**: Core logic for movement, collision, physics, and ability resolution is shared between client and server to ensure deterministic simulation.
+- **Hybrid Map System**: Map consists of a fixed central region and three peripheral biomes arranged in a three-pronged star configuration.
+
+### Code Organization
+
+- **Feature-based Structure**: Code should be organized by feature rather than type.
+- **Shared Types**: Common type definitions should be shared between client and server.
+- **Clear Interfaces**: Define clear interfaces between components to maintain separation of concerns.
+- **Common Ability Class**: All abilities (movement, offensive, defensive, support) use a shared base class with specialized behavior.
+- **Data-Driven Configuration**: Game elements like tiles, buildings, and barriers are defined via JSON for easy modification without code changes.
+
+### Performance Considerations
+
+- **Circular Hitboxes**: All player characters use uniform circular hitboxes (50cm diameter) for consistent and efficient collision detection.
+- **Interest Management**: Only send updates relevant to each client to minimize bandwidth usage.
+- **Delta Compression**: Use delta compression for state updates to reduce network traffic.
+- **Visibility Optimization**: Implement efficient fog of war calculations with server authority.
+- **Tile Texture Variables**: Embed gameplay variables directly into dedicated channels on tile textures for efficient runtime lookups.
+- **View Distance Optimization**: Default view is a circular area plus an extended cone in the facing direction, with allies' view areas merged.
+
+## Technical Stack
+
+### Frontend
+
+- **Phaser 3**: Primary game engine for 2D rendering and game canvas.
+- **React**: UI framework for elements outside the game canvas.
+- **TypeScript**: Language for type safety and better developer experience.
+
+### Backend
+
+- **Node.js**: Runtime environment for server-side code.
+- **Colyseus.js**: Multiplayer game server framework.
+- **Redis**: In-memory data store for fast state management.
+- **Supabase**: Backend-as-a-Service for authentication, database, and storage.
+
+### Infrastructure
+
+- **Vercel**: Hosting platform for frontend.
+- **DigitalOcean App Services**: Hosting platform for backend.
+- **Cloudflare**: CDN and DDoS protection.
+
+## Workflow Preferences
+
+### Documentation Updates
+
+- Update memory bank files when:
+  1. Discovering new project patterns
+  2. After implementing significant changes
+  3. When requested with "update memory bank" or "UMB"
+  4. When context needs clarification
+
+- Focus particularly on activeContext.md and progress.md when updating, as they track current state.
+
+### Development Workflow
+
+- **Feature Branches**: Use feature branches for development, with pull requests for code review.
+- **Continuous Integration**: Automated testing on pull requests.
+- **Iterative Development**: Focus on rapid iteration and playtesting for gameplay features.
+
+## Known Challenges
+
+### Technical Challenges
+
+- **Scalability**: Ensuring the architecture can handle up to 10,000 concurrent players.
+- **Network Optimization**: Minimizing bandwidth usage while maintaining responsive gameplay.
+- **Physics Synchronization**: Implementing efficient server-authoritative physics with client-side prediction.
+- **Interest Management**: Creating an effective system to filter updates by relevance to each player.
+- **Dynamic Map Scaling**: Implementing seamless map resizing based on player count.
+- **Real-time Statistics**: Efficiently collecting and aggregating player statistics like K/D and Elo ratings.
+- **Database Schema Design**: Creating an extensible schema for player statistics, item attributes, and game state.
+
+### Design Challenges
+
+- **Ability Balance**: Ensuring the various abilities are balanced and create interesting gameplay.
+- **Progression System**: Creating meaningful progression without insurmountable advantages.
+- **Faction Balance**: Maintaining balanced competition between the three factions.
+- **New Player Experience**: Ensuring new players can quickly understand and enjoy the game.
+- **Performance vs. Visual Quality**: Balancing visual effects with performance requirements.
+- **Item Rarity System**: Balancing the four-tier rarity system to provide meaningful progression.
+- **Trinket System**: Creating interesting advantages/disadvantages without breaking game balance.
+- **Armor Type Balance**: Ensuring the four armor types are balanced and support different playstyles.
+
+## Project-Specific Terminology
+
+- **Factions**: The three competing teams in the game.
+- **Bases**: Capturable points on the map that provide strategic advantages.
+- **Abilities**: Special actions players can perform, categorized as Movement, Offense, Defense, and Support.
+- **Augmentations**: Modifications to abilities that provide advantages paired with disadvantages.
+- **Fog of War**: Limited visibility system that restricts what players can see.
+- **Elo System**: Progression system that applies diminishing returns on XP as players advance.
+- **Trinkets**: Unique modifiers that alter playstyle through inherent advantages and disadvantages.
+- **Armor Types**: Four distinct armor types (Plasma Shield, Energy Shield, Plate, Berserk) with unique regeneration mechanics.
+- **Item Rarity**: Four-tier system (Common, Uncommon, Rare, Epic) with flat stat bonuses.
+- **Hybrid Map**: Map system with fixed central region and three peripheral biomes in a three-pronged star configuration.
+- **Mounting**: Ability to "mount up" for faster travel between battles, with restrictions on actions while mounted.
+- **Dynamic Base Graph**: Representation of bases as nodes in a graph with connections and constraints.
+
+## Memory Bank Update Protocol
+
+When triggered by "update memory bank" or "UMB":
+
+1. Halt current task immediately
+2. Review entire chat history
+3. Update all relevant files in memory-bank
+4. Cross-reference all changes
+5. Verify updates are complete
+
+Focus on these files:
+- activeContext.md: Update objectives, decisions, questions, blockers
+- progress.md: Update completed items, current tasks, next steps
+- decisionLog.md: Record decisions and implementation details
+- productContext.md: Update project scope changes and standards
+
+## Critical Rules
+
+- NEVER use the create_memory tool or built-in memories system
+- ALWAYS use the memory-bank system for persistent storage
+- Read ALL memory bank files at the start of EVERY task
+- Maintain precise and clear documentation as memory resets completely between sessions
