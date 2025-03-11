@@ -21,9 +21,6 @@
     "ioredis": "^5.0.0"
   },
   "devDependencies": {
-    "@planetbyte/config-eslint": "workspace:*",
-    "@planetbyte/config-prettier": "workspace:*",
-    "@planetbyte/config-tsconfig": "workspace:*",
     "@planetbyte/common": "workspace:*",
     "@types/cors": "^2.8.0",
     "@types/express": "^4.17.0",

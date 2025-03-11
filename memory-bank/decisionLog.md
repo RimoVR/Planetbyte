@@ -520,6 +520,71 @@ This document records key decisions made during the development of PlanetByte, i
 - Potential balance challenges between armor types
 - Need for careful tuning of regeneration rates and health values
 
+### ID-011: Testing Infrastructure for Multiple Clients
+
+**Date**: March 11, 2025
+
+**Decision**: Create a dedicated testing infrastructure with a test script for multiple clients connecting to the server.
+
+**Context**: The game requires testing with multiple clients to verify WebSocket connection and state synchronization.
+
+**Rationale**:
+- Enables systematic testing of multiplayer functionality
+- Provides a controlled environment for reproducing and debugging issues
+- Allows for automated simulation of player actions
+- Helps verify server-side state synchronization and reconciliation
+- Supports development of interest management and network optimization
+
+**Implementation Details**:
+1. **Tools directory**: Created a dedicated directory for development tools and test scripts
+2. **test-multiple-clients.js**: Implemented a script that creates multiple Colyseus.js clients and connects them to the server
+3. **Simulated movement**: Added random movement simulation for each client to test state synchronization
+4. **Package configuration**: Added package.json for the tools directory with necessary dependencies
+5. **Documentation**: Created README.md with instructions for using the test scripts
+
+**Alternatives Considered**:
+1. **Manual testing with multiple browsers**: Rejected due to inefficiency and lack of reproducibility.
+2. **Integration with a formal testing framework**: Considered for future implementation after basic testing infrastructure is established.
+3. **Headless browser testing**: Considered but rejected for initial implementation due to added complexity.
+
+**Consequences**:
+- More efficient and reproducible testing process
+- Better identification of multiplayer-specific issues
+- Ability to simulate various network conditions and player behaviors
+- Support for future performance testing and optimization
+- Foundation for more comprehensive automated testing
+
+### ID-012: Package.json Dependency Management
+
+**Date**: March 11, 2025
+
+**Decision**: Remove non-existent workspace dependencies from client and server package.json files.
+
+**Context**: The client and server package.json files contained references to workspace dependencies that didn't exist, causing TypeScript errors.
+
+**Rationale**:
+- Resolves TypeScript errors caused by missing dependencies
+- Simplifies the dependency structure
+- Improves build reliability
+- Prevents confusion for new developers
+- Allows for proper workspace package resolution
+
+**Implementation Details**:
+1. **Client package.json**: Removed references to @planetbyte/config-eslint, @planetbyte/config-prettier, and @planetbyte/config-tsconfig
+2. **Server package.json**: Removed references to @planetbyte/config-eslint, @planetbyte/config-prettier, and @planetbyte/config-tsconfig
+3. **Retained @planetbyte/common**: Kept the reference to the common package which contains shared types and utilities
+
+**Alternatives Considered**:
+1. **Creating the missing packages**: Considered but rejected as unnecessary for the current development phase.
+2. **Using external packages instead**: Considered but rejected to maintain the monorepo structure.
+
+**Consequences**:
+- Resolved TypeScript errors
+- Simplified dependency management
+- Improved build process reliability
+- Clearer package structure for new developers
+- Potential need to reintroduce shared configuration packages in the future
+
 ## Future Decisions Pending
 
 ### FD-001: Asset Pipeline and Art Style Implementation

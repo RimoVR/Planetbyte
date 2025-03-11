@@ -75,6 +75,14 @@ This file captures important patterns, preferences, and project intelligence for
 - **Continuous Integration**: Automated testing on pull requests.
 - **Iterative Development**: Focus on rapid iteration and playtesting for gameplay features.
 
+### Command Line Usage
+
+- **Windows PowerShell**: The project is developed on Windows using PowerShell, which has different syntax for command chaining:
+  - Do NOT use `&&` for command chaining as in bash/sh
+  - Use semicolons (`;`) to separate commands in PowerShell
+  - For complex operations, use separate commands or PowerShell scripts
+  - Example: Instead of `cd apps/server && pnpm run dev`, use `cd apps/server; pnpm run dev`
+
 ## Known Challenges
 
 ### Technical Challenges

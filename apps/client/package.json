@@ -18,9 +18,6 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@planetbyte/config-eslint": "workspace:*",
-    "@planetbyte/config-prettier": "workspace:*",
-    "@planetbyte/config-tsconfig": "workspace:*",
     "@planetbyte/common": "workspace:*",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
