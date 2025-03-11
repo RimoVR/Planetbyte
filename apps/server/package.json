@@ -11,9 +11,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@colyseus/core": "^0.15.0",
-    "@colyseus/schema": "^2.0.0",
-    "@colyseus/ws-transport": "^0.15.0",
     "@supabase/supabase-js": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",

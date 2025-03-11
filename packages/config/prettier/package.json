@@ -2,7 +2,7 @@
   "name": "@planetbyte/config-prettier",
   "version": "0.1.0",
   "private": true,
-  "main": ".prettierrc.js",
+  "main": "index.js",
   "dependencies": {
     "prettier": "^2.0.0"
   }
