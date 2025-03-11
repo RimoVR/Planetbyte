@@ -130,10 +130,22 @@ dist
 .pnp.*
 
 # Version control list - always keep these lines
-!/.gitignore
-!/src/
-!/src/**
-!/package.json
+!.gitignore
+!package.json
+!pnpm-workspace.yaml
+!turbo.json
 !/README.md
+!project-structure.md
+!.clinerules
+
+# Include all directories and their contents
+!apps/
+!apps/**
+!packages/
+!packages/**
+!docs/
 !/docs/
-!/docs/**
+!memory-bank/
+!memory-bank/**
+!tools/
+!tools/****
