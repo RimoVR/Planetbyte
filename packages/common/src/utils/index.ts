@@ -5,6 +5,12 @@
 import { Vector2 } from '../types';
 import { WORLD_CONSTANTS, BALANCE_CONSTANTS } from '../constants';
 
+// Export metrics module
+export * from './metrics';
+
+// Export network module
+export * from './network';
+
 /**
  * Calculate distance between two points
  */

@@ -7,6 +7,10 @@ export class PlayerEntity extends Component {
   position: Position;
   faction: Faction;
   viewDistance: number;
+  lastUpdateTime: number = 0;
+  updateCount: number = 0;
+  totalBytesSent: number = 0;
+  totalBytesSaved: number = 0;
 
   static readonly isComponent = true;
   static schema = {
@@ -24,8 +28,48 @@ export class PlayerEntity extends Component {
     this.viewDistance = viewDistance;
   }
 
-  sendUpdates(entities: Component[]) {
-    // TODO: Implement network update sending
-    console.log(`Sending updates for ${entities.length} entities to player ${this.id}`);
+  /**
+   * Send updates to the client
+   * @param updates Array of updates to send
+   */
+  sendUpdates(updates: any[]): void {
+    // In a real implementation, this would send the updates to the client
+    // For now, just log that we're sending updates
+    
+    // Calculate update frequency (updates per second)
+    const now = Date.now();
+    const timeSinceLastUpdate = now - this.lastUpdateTime;
+    this.lastUpdateTime = now;
+    
+    // Only calculate frequency if not the first update
+    if (this.updateCount > 0 && timeSinceLastUpdate > 0) {
+      const updatesPerSecond = 1000 / timeSinceLastUpdate;
+      console.log(`Player ${this.id} update frequency: ${updatesPerSecond.toFixed(2)} updates/second`);
+    }
+    
+    // Track update count
+    this.updateCount++;
+    
+    // Track bytes sent and saved
+    let bytesSent = 0;
+    let bytesSaved = 0;
+    
+    updates.forEach(update => {
+      if (update.stats) {
+        bytesSent += update.stats.compressedSize;
+        bytesSaved += update.stats.originalSize - update.stats.compressedSize;
+      } else {
+        // Estimate size if stats not available
+        bytesSent += JSON.stringify(update).length;
+      }
+    });
+    
+    this.totalBytesSent += bytesSent;
+    this.totalBytesSaved += bytesSaved;
+    
+    // Log total bytes sent and saved
+    if (this.updateCount % 10 === 0) {
+      console.log(`Player ${this.id} total: ${this.totalBytesSent} bytes sent, ${this.totalBytesSaved} bytes saved (${(this.totalBytesSaved / (this.totalBytesSent + this.totalBytesSaved) * 100).toFixed(2)}% reduction)`);
+    }
   }
 }

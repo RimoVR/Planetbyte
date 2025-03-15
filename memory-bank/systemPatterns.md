@@ -275,3 +275,89 @@ The server architecture is designed for scalability and real-time performance:
 - Binary protocol for efficient data transfer
 - Prioritized updates based on gameplay relevance
 - Adaptive update rates based on connection quality
+
+## Performance Monitoring and Optimization
+
+### Metrics Collection System
+
+**Purpose:**
+To track and analyze the performance of various game systems, particularly the interest management and network communication systems.
+
+**Key Components:**
+1. **MetricsCollector**
+   - Centralized metrics collection and aggregation
+   - Supports multiple metric types: counters, gauges, histograms, timers
+   - Automatic snapshotting and historical data retention
+   - Singleton pattern for global access
+
+2. **InterestMetrics**
+   - Specialized metrics for interest management system
+   - Tracks entity filtering efficiency, processing time, grid cell density
+   - Records network bandwidth usage and memory consumption
+
+**Implementation Details:**
+- Metrics are collected at key points in the interest management pipeline
+- Histograms track distribution of values (e.g., processing times)
+- Timers measure duration of critical operations
+- Metrics are exposed via API for monitoring and analysis
+
+### Delta Compression System
+
+**Purpose:**
+To optimize network bandwidth usage by only sending state changes (deltas) rather than complete state snapshots.
+
+**Key Components:**
+1. **DeltaCompression**
+   - Multiple compression levels (none, basic, advanced, binary)
+   - Type-specific optimizations for game data (positions, rotations)
+   - Tracks compression statistics (original size, compressed size, ratio)
+
+2. **SpatialPartitioningSystem Integration**
+   - Maintains previous state for each client
+   - Calculates deltas between current and previous states
+   - Applies compression based on configured level
+   - Sends compressed deltas to clients
+
+**Implementation Details:**
+- Uses JSON diffing for basic delta calculation
+- Special handling for common game data types:
+  - Relative position changes instead of absolute positions
+  - Quantized rotation values
+  - Efficient encoding of boolean flags
+- Compression statistics are tracked per-client and aggregated
+
+### Testing and Monitoring
+
+**Performance Test Script**
+
+**Location:** tools/scripts/test-performance.js
+
+**Features:**
+- Simulates multiple clients connecting to the server
+- Generates realistic player movement patterns
+- Tracks and reports performance metrics:
+  - Bandwidth usage (bytes sent/received)
+  - Update frequency (messages per second)
+  - Compression ratios
+  - Processing times
+
+**Usage:**
+1. Start the server:
+   ```bash
+   cd apps/server
+   npm run dev
+   ```
+
+2. Run the performance test:
+   ```bash
+   cd tools/scripts
+   node test-performance.js
+   ```
+
+3. Monitor console output for performance metrics and statistics
+
+**Expected Results:**
+- Significant bandwidth reduction from delta compression (50-70%)
+- Reduced processing time from efficient interest management
+- Scalable performance with increasing player counts
+- Detailed metrics for optimization and debugging
