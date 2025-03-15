@@ -1,77 +1,68 @@
-# Active Context - PlanetByte
+# Active Context - PlanetByte Design Changes
 
-**Current Focus**: Performance Optimization and Network Efficiency  
-**Last Updated**: March 15, 2025  
-**Current Phase**: Foundation (Phase 1)
+## Current Work Focus
+- Implementing infrastructure migration from Vercel/DigitalOcean to Hetzner Server with Coolify
+- Refocusing on MVP development with prioritized core features
+- Creating developer art system for placeholder visuals
+- Converting ASCII diagrams to mermaid flowcharts for better documentation
 
-## Active Decisions
-
-### 1. Performance Optimization Strategy
-```mermaid
-flowchart TD
-    A[Analyze Multi-Client Test Results] --> B[Identify Bottlenecks]
-    B --> C[Implement Delta Compression]
-    C --> D[Add Metrics Collection]
-    D --> E[Optimize Network Updates]
-```
-
-### 2. Network Efficiency Approach
-```mermaid
-flowchart LR
-    Client -->|Subscribe| GridFilter[Grid-Based Filter]
-    GridFilter -->|Check| DistanceFilter[Distance Threshold]
-    DistanceFilter -->|Within Range| SendUpdates
-    DistanceFilter -->|Outside Range| FilterOut
-    GridFilter -.->|Adjacent Cells| PartialUpdates
-```
-
-## Implementation Plan
-
-### Phase 1: Multi-Client Testing (Completed)
-1. **Test Execution**
-   - Successfully tested with 3 concurrent clients
-   - Verified WebSocket connections and state synchronization
-   - Collected movement data for analysis
-
-2. **Results Analysis**
-   - Confirmed proper state synchronization
-   - Identified network optimization opportunities
-   - Verified interest management system functionality
-
-### Phase 2: Performance Optimization (In Progress)
-1. **System Components**
-   - DeltaCompression.ts: Network update optimization (In Progress)
-   - MetricsCollector.ts: Performance monitoring (In Progress)
-   - NetworkOptimizer.ts: Bandwidth efficiency (Planned)
-
-2. **Implementation Steps**
-   - ✅ Analyze multi-client test results
-   - 🔄 Implement delta compression for network updates
-   - 🔄 Add performance metrics collection
-   - 🔄 Optimize grid cell size based on player density
-   - 🔄 Implement view distance adjustments
-
-### Phase 3: Network Efficiency (Planned)
-1. **Optimization Techniques**
-   - Implement delta compression for network updates
-   - Optimize grid cell size based on player density
-   - Add view distance adjustments based on game conditions
+## Recent Changes
+1. Updated infrastructure approach to use containerization on a single Hetzner server
+2. Reprioritized development tasks to focus on core MVP features
+3. Designed developer art strategy using simple shapes and colors
+4. Updated documentation standards to use mermaid flowcharts
+5. Updated .clinerules with new documentation standards
 
 ## Next Steps
-1. ~~Complete multi-client testing~~ (Completed)
-2. Analyze test results for performance bottlenecks
-3. Implement delta compression for network updates
-4. Add performance metrics collection
-5. Optimize grid cell size based on player density
-6. Implement view distance adjustments
-7. Standardize module systems between packages
+- Set up Hetzner server with Docker and Coolify
+- Implement containerization for all components
+- Self-host Supabase on Hetzner
+- Create developer art system for entities and tiles
+- Implement core MVP features based on new priorities
+
+## Key Decisions
+
+### Infrastructure Migration
+Moving from distributed managed services (Vercel, DigitalOcean, hosted Supabase) to a consolidated approach:
+- Single Hetzner server running all components
+- Docker containers for isolation and management
+- Coolify for container orchestration
+- Self-hosted Supabase for authentication, database, and storage
+- Nginx reverse proxy for routing
+
+### MVP Prioritization Framework
+```mermaid
+flowchart TD
+    A[All Tasks] --> B{Essential for MVP?}
+    B -->|Yes| C[Implement Now]
+    B -->|No| D{Easy to implement\nor necessary for\ncore functionality?}
+    D -->|Yes| C
+    D -->|No| E[Defer to Future]
+    
+    C --> F[MVP Release]
+    E --> G[Post-MVP Roadmap]
+```
+
+### Developer Art Implementation
+Creating a placeholder art system that can be easily replaced later:
+- Simple geometric shapes for entities
+- Color-coding for factions and item types
+- Grid-based tiles with color differentiation
+- Consistent naming conventions for future replacement
+
+### Documentation Standards
+- All diagrams now use mermaid flowchart syntax
+- Consistent styling across documentation
+- Better visualization of system relationships
+- Improved readability and maintainability
 
 ## Open Questions
-- Optimal delta compression ratio for network updates?
-- Default view distance parameters? (Currently using 50 meters)
-- Should we implement adaptive grid cell sizing?
+- What are the specific hardware requirements for the Hetzner server?
+- How will the containerization affect development workflow?
+- What is the timeline for implementing these changes?
+- How will the developer art system integrate with the existing codebase?
 
 ## Blockers
-- ~~Multi-client testing completion~~ (Resolved)
-- Performance metrics collection setup
-- Delta compression implementation
+- Need to determine optimal Hetzner server specifications
+- Docker expertise required for proper containerization
+- Self-hosting Supabase requires additional configuration

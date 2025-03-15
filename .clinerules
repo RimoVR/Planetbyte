@@ -53,8 +53,10 @@ This file captures important patterns, preferences, and project intelligence for
 
 ### Infrastructure
 
-- **Vercel**: Hosting platform for frontend.
-- **DigitalOcean App Services**: Hosting platform for backend.
+- **Hetzner Server**: Primary hosting platform for all components.
+- **Coolify**: Container orchestration platform for deployment.
+- **Docker**: Containerization for all services.
+- **Supabase**: Self-hosted on Hetzner for authentication, database, and storage.
 - **Cloudflare**: CDN and DDoS protection.
 
 ## Workflow Preferences
@@ -136,6 +138,12 @@ Focus on these files:
 - progress.md: Update completed items, current tasks, next steps
 - decisionLog.md: Record decisions and implementation details
 - productContext.md: Update project scope changes and standards
+
+## Documentation Standards
+
+- **Flowchart Format**: ALWAYS use mermaid flowcharts instead of ASCII diagrams for better readability and maintainability.
+- **Diagram Consistency**: Maintain consistent styling across all diagrams for unified documentation.
+- **Visual Documentation**: Prefer visual representations (diagrams, flowcharts) for complex systems and relationships.
 
 ## Critical Rules
 

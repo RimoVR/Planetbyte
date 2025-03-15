@@ -55,6 +55,51 @@ You can modify the following variables in the script:
 - `NUM_CLIENTS`: The number of clients to create (default: `3`)
 - `MOVEMENT_INTERVAL`: The interval between movement updates in milliseconds (default: `500`)
 
+## Docker and Containerization Tools
+
+### Docker Build Scripts
+
+The `docker-build.js` script automates the process of building Docker images for all components of the PlanetByte project.
+
+#### Prerequisites
+
+- Docker installed
+- Node.js installed
+
+#### Usage
+
+```bash
+# From the project root
+pnpm run docker:build
+```
+
+The script will:
+- Build Docker images for the client, server, and other components
+- Tag the images appropriately
+- Optimize the build process for faster iterations
+
+### Coolify Deployment Scripts
+
+The `coolify-deploy.js` script handles deployment to the Coolify instance running on the Hetzner server.
+
+#### Prerequisites
+
+- Coolify CLI installed
+- Proper authentication configured
+
+#### Usage
+
+```bash
+# From the project root
+pnpm run deploy
+```
+
+The script will:
+- Connect to the Coolify instance
+- Deploy the latest Docker images
+- Configure networking and environment variables
+- Verify the deployment status
+
 ## Adding New Tools
 
 To add a new tool:

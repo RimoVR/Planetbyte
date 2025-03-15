@@ -6,37 +6,22 @@ PlanetByte follows a client-server architecture with clear separation of concern
 
 ### High-Level Architecture
 
-```
-┌─────────────────────────────────────┐      ┌─────────────────────────────────────┐
-│           CLIENT (Vercel)           │      │          SERVER (DigitalOcean)       │
-│                                     │      │                                      │
-│  ┌─────────────┐    ┌────────────┐  │      │  ┌─────────────┐    ┌────────────┐  │
-│  │  Phaser 3   │    │   React    │  │      │  │ Colyseus.js │    │   Node.js  │  │
-│  │  Game Canvas│    │   UI Layer │  │      │  │ Game Server │    │  API Layer │  │
-│  └─────────────┘    └────────────┘  │      │  └─────────────┘    └────────────┘  │
-│          │                │         │      │          │                │         │
-│          └────────┬───────┘         │      │          └────────┬───────┘         │
-│                   │                 │      │                   │                 │
-│          ┌────────────────┐         │      │          ┌────────────────┐         │
-│          │  WebSocket &   │         │◄─────┼─────────►│  WebSocket &   │         │
-│          │   HTTP Client  │         │      │          │   HTTP Server  │         │
-│          └────────────────┘         │      │          └────────────────┘         │
-└─────────────────────────────────────┘      └─────────────────────────────────────┘
-                                                              │
-                                                              │
-                                             ┌────────────────┴───────────────┐
-                                             │                                │
-                                             │  ┌──────────────────────────┐  │
-                                             │  │        Supabase          │  │
-                                             │  │ (Auth, PostgreSQL, CDN)  │  │
-                                             │  └──────────────────────────┘  │
-                                             │                                │
-                                             │  ┌──────────────────────────┐  │
-                                             │  │          Redis           │  │
-                                             │  │  (State & Pub/Sub)       │  │
-                                             │  └──────────────────────────┘  │
-                                             │                                │
-                                             └────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph "Hetzner Server"
+        subgraph "Coolify (Container Orchestration)"
+            A["Frontend Container\nPhaser 3 + React"]
+            B["Colyseus Game Server Container"]
+            C["Self-hosted Supabase Container"]
+            D["Redis Container"]
+            E["Nginx Reverse Proxy Container"]
+        end
+    end
+    
+    A <--> E
+    B <--> E
+    B <--> C & D
+    E <--> Internet["Internet/Users"]
 ```
 
 ### Client-Side Architecture
@@ -107,19 +92,22 @@ The server architecture is designed for scalability and real-time performance:
 - Interest management system to filter updates by relevance
 - Overlapping boundaries to handle entity transitions smoothly
 
-### 3. Managed Services Approach
+### 3. Containerized Infrastructure Approach
 
-**Decision:** Utilize managed services (Vercel, DigitalOcean App Services, Supabase) rather than custom infrastructure.
+**Decision:** Utilize containerization with Docker and Coolify on a single Hetzner server.
 
 **Rationale:**
-- Reduces DevOps overhead and operational complexity
-- Provides cost-effective scaling during early development
-- Leverages built-in security and reliability features
+- Provides better control over infrastructure and deployment
+- Reduces operational costs compared to multiple managed services
+- Enables consistent environments across development and production
+- Simplifies scaling and management through containerization
 
 **Implementation:**
-- Frontend hosted on Vercel with global CDN
-- Game server deployed on DigitalOcean App Services
-- Authentication and persistence handled by Supabase
+- All components containerized with Docker
+- Coolify for container orchestration and deployment
+- Self-hosted Supabase for authentication, database, and storage
+- Nginx reverse proxy for routing and SSL termination
+- Cloudflare for CDN and DDoS protection
 
 ### 4. Simplified Physics Model
 
@@ -186,74 +174,111 @@ The server architecture is designed for scalability and real-time performance:
 
 ### Game State Management
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  Client State   │◄────┤  Server State   │────►│  Persistence    │
-│  (Phaser.js)    │     │  (Colyseus.js)  │     │  (Supabase)     │
-│                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-        ▲                       ▲                       ▲
-        │                       │                       │
-        │                       │                       │
-        │                       │                       │
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  Input Handler  │────►│  Game Logic     │────►│  State Updates  │
-│  (Client)       │     │  (Server)       │     │  (Redis)        │
-│                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
+```mermaid
+flowchart LR
+    A["Client State\n(Phaser.js)"] <--> B["Server State\n(Colyseus.js)"]
+    B <--> C["Persistence\n(Supabase)"]
+    
+    D["Input Handler\n(Client)"] --> E["Game Logic\n(Server)"]
+    E --> F["State Updates\n(Redis)"]
+    
+    D --> A
+    E --> B
+    F --> C
 ```
 
 ### Player Ability System
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  Ability Slot   │────►│  Ability Base   │◄────┤  Augmentation   │
-│  (Container)    │     │  (Behavior)     │     │  (Modifier)     │
-│                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                                │
-                                │
-                                ▼
-                        ┌─────────────────┐
-                        │                 │
-                        │  Effect System  │
-                        │  (Application)  │
-                        │                 │
-                        └─────────────────┘
-                                │
-                                │
-                ┌───────────────┴───────────────┐
-                │                               │
-                ▼                               ▼
-        ┌─────────────────┐             ┌─────────────────┐
-        │                 │             │                 │
-        │  Self Effects   │             │  World Effects  │
-        │  (Player)       │             │  (Environment)  │
-        │                 │             │                 │
-        └─────────────────┘             └─────────────────┘
+```mermaid
+flowchart TD
+    A["Ability Slot\n(Container)"] --> B["Ability Base\n(Behavior)"]
+    C["Augmentation\n(Modifier)"] --> B
+    B --> D["Effect System\n(Application)"]
+    D --> E["Self Effects\n(Player)"]
+    D --> F["World Effects\n(Environment)"]
 ```
 
-### Visibility System
+### View Distance Optimization System
 
+The View Distance Optimization System dynamically calculates and adjusts player visibility based on multiple factors:
+
+```mermaid
+classDiagram
+    ViewDistanceManager --> EnvironmentalConditionManager
+    ViewDistanceManager --> PlayerEquipmentManager
+    ViewDistanceManager --> AlliedViewSharing
+    ViewDistanceManager --> InterestManager
+    ViewDistanceManager --> FactionVisibility
+    
+    class ViewDistanceManager {
+        -environment: EnvironmentalConditionManager
+        -equipment: PlayerEquipmentManager
+        -allies: AlliedViewSharing
+        +calculateViewDistance(player)
+        +updateVisibility(player)
+    }
+    
+    class EnvironmentalConditionManager {
+        -currentConditions: EnvironmentalConditions
+        +getVisibilityModifier()
+        +updateConditions()
+    }
+    
+    class PlayerEquipmentManager {
+        -equipment: Equipment[]
+        +getEquipmentModifiers()
+        +updateEquipment(player)
+    }
+    
+    class AlliedViewSharing {
+        -allies: PlayerEntity[]
+        +getAlliedVisibilityBonus()
+        +updateAllies(player)
+    }
+    
+    class InterestManager {
+        +getRelevantEntities(player)
+    }
+    
+    class FactionVisibility {
+        +canSee(observer, target)
+    }
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  Player View    │◄────┤  Server Auth    │────►│  Map Status     │
-│  (Client)       │     │  (Visibility)   │     │  (Strategic)    │
-│                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-        ▲                       ▲                       ▲
-        │                       │                       │
-        │                       │                       │
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  Fog of War     │     │  Visibility     │     │  Battle         │
-│  (Renderer)     │     │  Modifiers      │     │  Detection      │
-│                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
+
+#### Key Components
+
+1. **EnvironmentalConditionManager**
+   - Tracks day/night cycle, weather effects, and environmental hazards
+   - Calculates visibility modifiers based on current conditions
+   - Updates conditions periodically based on game state
+
+2. **PlayerEquipmentManager**
+   - Manages player-specific equipment that affects visibility
+   - Tracks items like sniper scopes, thermal goggles, and scout drones
+   - Calculates equipment-based visibility bonuses
+
+3. **AlliedViewSharing**
+   - Manages visibility sharing between allied players
+   - Calculates bonus visibility based on ally proximity and equipment
+   - Implements diminishing returns for distant allies
+
+4. **ViewDistanceManager**
+   - Coordinates all visibility calculations
+   - Integrates with InterestManager for efficient updates
+   - Handles server-authoritative visibility determination
+
+#### Integration Points
+
+- **Interest Management**: Uses view distance to filter relevant entities
+- **Faction Visibility**: Handles special faction-specific visibility rules
+- **Spatial Partitioning**: Optimizes visibility calculations using grid cells
+
+#### Performance Considerations
+
+- **Server-Authoritative Calculation**: All visibility calculations performed server-side
+- **Delta Updates**: Only sends visibility changes when they occur
+- **Caching**: Caches visibility calculations for static conditions
+- **Batch Processing**: Processes visibility updates in batches for efficiency
 ```
 
 ## Performance Considerations

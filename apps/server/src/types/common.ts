@@ -114,7 +114,40 @@ export const WORLD_CONSTANTS = {
   PLAYER_HITBOX_RADIUS: 25,
   PLAYER_MOVEMENT_SPEED: 200,
   GRID_CELL_SIZE: 1000,
-  GRID_CELL_OVERLAP: 100
+  GRID_CELL_OVERLAP: 100,
+  
+  // View Distance Constants
+  DEFAULT_VIEW_DISTANCE: 50,
+  MIN_VIEW_DISTANCE: 20,
+  MAX_VIEW_DISTANCE: 100,
+  
+  // Environmental Condition Constants
+  DAY_NIGHT_CYCLE_DURATION: 3600000, // 1 hour in milliseconds
+  NIGHT_VIEW_DISTANCE_MODIFIER: -15, // Reduce view distance by 15 units at night
+  
+  // Weather Effect Constants
+  WEATHER_UPDATE_INTERVAL: 300000, // 5 minutes in milliseconds
+  FOG_VIEW_DISTANCE_MODIFIER: -20,
+  RAIN_VIEW_DISTANCE_MODIFIER: -10,
+  STORM_VIEW_DISTANCE_MODIFIER: -25,
+  
+  // Environmental Hazard Constants
+  HAZARD_CHECK_INTERVAL: 60000, // 1 minute in milliseconds
+  TOXIC_GAS_VIEW_DISTANCE_MODIFIER: -30,
+  METEOR_STRIKE_VIEW_DISTANCE_MODIFIER: -15,
+  
+  // Equipment Modifier Constants
+  SNIPER_SCOPE_VIEW_DISTANCE_MODIFIER: 30,
+  THERMAL_GOGGLES_VIEW_DISTANCE_MODIFIER: 15,
+  SCOUT_DRONE_VIEW_DISTANCE_MODIFIER: 20,
+  
+  // Allied View Sharing Constants
+  ALLIED_VIEW_SHARE_DISTANCE: 10, // Distance within which allies share visibility
+  ALLIED_VIEW_SHARE_PERCENTAGE: 0.5, // Percentage of ally's view distance that is shared
+  
+  // View Cone Constants
+  VIEW_CONE_ANGLE: Math.PI / 3, // 60 degrees in radians
+  VIEW_CONE_DISTANCE_MULTIPLIER: 1.5 // 50% further in facing direction
 };
 
 export const BALANCE_CONSTANTS = {

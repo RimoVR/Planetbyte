@@ -28,29 +28,32 @@ This document records key decisions made during the development of PlanetByte, i
 - Need for client-side prediction and server reconciliation
 - Better security and cheat prevention
 
-### AD-002: Managed Services Approach for Infrastructure
+### AD-002: Containerized Infrastructure on Hetzner Server
 
-**Date**: March 10, 2025
+**Date**: March 15, 2025
 
-**Decision**: Utilize managed services (Vercel, DigitalOcean App Services, Supabase) rather than custom infrastructure.
+**Decision**: Migrate from distributed managed services (Vercel, DigitalOcean, hosted Supabase) to a consolidated approach using Docker containers on a single Hetzner server with Coolify for orchestration.
 
-**Context**: The project aims for rapid development and iteration while minimizing DevOps overhead.
+**Context**: The project needs a more cost-effective and controlled infrastructure approach while maintaining deployment flexibility.
 
 **Rationale**:
-- Reduces operational complexity and maintenance burden
-- Provides cost-effective scaling during early development
-- Leverages built-in security and reliability features
-- Allows the team to focus on game development rather than infrastructure
+- Reduces operational costs compared to multiple managed services
+- Provides better control over infrastructure and deployment
+- Enables consistent environments across development and production
+- Simplifies scaling and management through containerization
+- Allows for self-hosting of all components including Supabase
 
 **Alternatives Considered**:
-1. **Custom Kubernetes deployment**: Rejected for initial development due to higher complexity and operational overhead, though may be considered for later scaling.
-2. **Traditional VPS hosting**: Rejected due to increased maintenance requirements and less automatic scaling capabilities.
+1. **Continue with managed services**: Rejected due to higher ongoing costs and less control.
+2. **Custom Kubernetes deployment**: Rejected due to higher complexity and operational overhead for the current scale.
+3. **Multiple VPS servers**: Rejected in favor of a single more powerful server with containerization.
 
 **Consequences**:
-- Some limitations in customization compared to self-hosted infrastructure
-- Potential vendor lock-in
-- Simplified deployment and operations
-- Reduced initial development time
+- Increased initial setup complexity
+- Need for Docker and Coolify expertise
+- Better cost efficiency for long-term operation
+- More control over infrastructure and deployment
+- Potential for easier horizontal scaling in the future
 
 ### AD-003: Spatial Partitioning for Game World
 
@@ -800,24 +803,107 @@ This document records key decisions made during the development of PlanetByte, i
 - More efficient entity updates
 - Foundation for future spatial partitioning optimizations
 
+### AD-007: MVP Prioritization Framework
+
+**Date**: March 15, 2025
+
+**Decision**: Implement a structured prioritization framework for development tasks to accelerate MVP delivery.
+
+**Context**: The project needs to deliver a minimal viable product as soon as possible while ensuring core gameplay functionality.
+
+**Rationale**:
+- Focuses development efforts on essential features first
+- Defers optimization tasks unless necessary for core functionality
+- Provides clear criteria for task prioritization
+- Accelerates time-to-playable prototype
+- Enables earlier testing and feedback cycles
+
+**Alternatives Considered**:
+1. **Feature-complete approach**: Rejected due to longer time to initial playable version.
+2. **Technical foundation first**: Considered but modified to include only essential technical components.
+3. **Parallel development tracks**: Considered but rejected due to potential coordination overhead.
+
+**Consequences**:
+- Some technical debt may accumulate in deferred optimization areas
+- Clearer development roadmap with defined priorities
+- Faster path to playable prototype
+- Better alignment of development efforts with business goals
+- More frequent opportunities for playtesting and feedback
+
+### AD-008: Developer Art Implementation Strategy
+
+**Date**: March 15, 2025
+
+**Decision**: Implement a developer art system using procedurally generated shapes and colors that can be easily replaced later.
+
+**Context**: The project needs visual representations for gameplay testing without waiting for final artwork.
+
+**Rationale**:
+- Enables gameplay testing without dependency on final art assets
+- Provides clear visual differentiation between game elements
+- Creates a swappable interface for easy replacement with final art
+- Reduces initial development time
+- Supports the MVP-first approach
+
+**Alternatives Considered**:
+1. **Wait for AI-generated art**: Rejected due to dependency and timeline impact.
+2. **Use third-party placeholder assets**: Considered but rejected to avoid licensing issues and inconsistent styling.
+3. **Minimal wireframe representation**: Rejected as insufficient for gameplay testing.
+
+**Consequences**:
+- Less visually polished initial version
+- Faster path to functional gameplay testing
+- Clear separation between art and functionality
+- Simplified asset pipeline during early development
+- Easier transition to final art assets later
+
+### AD-009: Documentation Standard for Diagrams
+
+**Date**: March 15, 2025
+
+**Decision**: Standardize on mermaid flowcharts for all system diagrams and architectural documentation.
+
+**Context**: The project documentation contained various ASCII diagrams that were difficult to maintain and update.
+
+**Rationale**:
+- Improves readability and maintainability of documentation
+- Provides consistent styling across all diagrams
+- Enables easier updates and modifications
+- Supports better visualization of system relationships
+- Integrates well with Markdown documentation
+
+**Alternatives Considered**:
+1. **Continue with ASCII diagrams**: Rejected due to maintenance difficulties and limited expressiveness.
+2. **External diagramming tools**: Considered but rejected due to workflow disruption and potential format incompatibilities.
+3. **Custom visualization library**: Rejected due to unnecessary development overhead.
+
+**Consequences**:
+- Initial conversion effort for existing diagrams
+- More maintainable documentation in the long term
+- Better visualization of complex relationships
+- Consistent styling across all documentation
+- Improved readability for new team members
+
 ## Future Decisions Pending
 
-### FD-001: Asset Pipeline and Art Style Implementation
+### FD-001: Final Art Style Implementation
 
 **Status**: Under consideration
 
-**Context**: The game requires a consistent art style and efficient asset delivery.
+**Context**: The game requires a consistent final art style once the developer art has served its purpose.
 
 **Options Being Considered**:
-1. Custom asset pipeline with automated optimization
+1. Custom asset pipeline with AI-generated artwork
 2. Third-party asset management solutions
-3. Procedural generation for certain elements
+3. Commissioned artwork with consistent style guidelines
+4. Hybrid approach with procedural generation and manual refinement
 
 **Decision Criteria**:
 - Performance impact on various devices
 - Development time and complexity
 - Flexibility for future art style evolution
-- Support for AI-generated artwork integration
+- Visual consistency and quality
+- Cost and resource requirements
 
 ### FD-002: Matchmaking and Player Distribution
 

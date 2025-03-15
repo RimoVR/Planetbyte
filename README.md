@@ -10,9 +10,9 @@ PlanetByte is a persistent, rogue-like world where three factions vie for territ
 
 This project is organized as a monorepo with the following structure:
 
-- `apps/client`: Frontend application (Phaser 3, React, TypeScript) deployed to Vercel
-- `apps/server`: Backend application (Node.js, Colyseus.js) deployed to DigitalOcean App Platform
-- `apps/supabase`: Supabase configuration for authentication, database, and storage
+- `apps/client`: Frontend application (Phaser 3, React, TypeScript) containerized with Docker
+- `apps/server`: Backend application (Node.js, Colyseus.js) containerized with Docker
+- `apps/supabase`: Supabase configuration for self-hosted authentication, database, and storage
 - `packages/common`: Shared code between client and server
 - `packages/config`: Shared configuration for ESLint, Prettier, and TypeScript
 - `tools`: Development tools and scripts
@@ -83,27 +83,36 @@ Supabase is used for authentication, database, and storage. The `apps/supabase` 
 
 ## Deployment
 
-### Client (Vercel)
+### Docker Containerization
 
-The client is deployed to Vercel. The `apps/client` directory contains the Vercel configuration.
-
-```bash
-cd apps/client
-pnpm build
-```
-
-### Server (DigitalOcean App Platform)
-
-The server is deployed to DigitalOcean App Platform. The `apps/server` directory contains the Dockerfile and configuration.
+All components are containerized using Docker and deployed to a Hetzner server using Coolify for orchestration.
 
 ```bash
-cd apps/server
-pnpm build
+# Build all Docker images
+pnpm docker:build
+
+# Push images to registry (if using)
+pnpm docker:push
 ```
 
-### Supabase
+### Coolify Deployment
 
-Supabase is used for authentication, database, and storage. The `apps/supabase` directory contains the Supabase configuration.
+The project uses Coolify for container orchestration on a Hetzner server. The deployment configuration is in the `.coolify` directory.
+
+```bash
+# Deploy to Coolify
+pnpm deploy
+```
+
+### Self-hosted Supabase
+
+Supabase is self-hosted on the Hetzner server as a Docker container. The `apps/supabase` directory contains the configuration.
+
+```bash
+# Deploy Supabase
+cd apps/supabase
+pnpm deploy
+```
 
 ## Documentation
 

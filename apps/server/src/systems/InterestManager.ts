@@ -6,14 +6,18 @@ import { FactionVisibility } from './FactionVisibility';
 import { InterestMetrics } from '../types/metrics';
 import { GridConfiguration } from './GridConfiguration';
 import { PlayerDensityAnalyzer } from './PlayerDensityAnalyzer';
+import { ViewDistanceManager } from './visibility/ViewDistanceManager';
+import { WORLD_CONSTANTS } from '../types/common';
 
 export class InterestManager {
   private gridCellTracker: GridCellTracker;
   private distanceCalculator: DistanceCalculator;
   private factionVisibility: FactionVisibility;
+  private viewDistanceManager: ViewDistanceManager;
   private metrics: InterestMetrics;
   private lastAdaptiveUpdateTime: number = 0;
   private adaptiveUpdateInterval: number = 60000; // 1 minute
+  private allPlayers: PlayerEntity[] = [];
 
   constructor(
     gridSize: number,
@@ -31,17 +35,45 @@ export class InterestManager {
     
     this.distanceCalculator = new DistanceCalculator(viewDistance);
     this.factionVisibility = new FactionVisibility();
+    this.viewDistanceManager = new ViewDistanceManager();
     this.metrics = InterestMetrics.getInstance();
+    
+    // Initialize view distance manager
+    this.viewDistanceManager.initialize();
+    
+    // Connect distance calculator to view distance manager
+    this.distanceCalculator.setViewDistanceManager(this.viewDistanceManager);
     
     console.log(`InterestManager initialized with ${adaptiveGridSizing ? 'adaptive' : 'fixed'} grid sizing`);
   }
 
+  /**
+   * Set all players in the game
+   * @param players All player entities
+   */
+  setAllPlayers(players: PlayerEntity[]): void {
+    this.allPlayers = players;
+    this.distanceCalculator.setAllPlayers(players);
+  }
+
+  /**
+   * Get relevant entities for a player
+   * @param player The player entity
+   * @returns Array of relevant entities
+   */
   getRelevantEntities(player: PlayerEntity): PlayerEntity[] {
     // Start performance timer
     this.metrics.startProcessingTimer();
     
     // Check if we should update adaptive grid sizing
     this.checkAdaptiveGridUpdate();
+    
+    // Update all players list if needed
+    if (this.allPlayers.length === 0 || !this.allPlayers.includes(player)) {
+      // This is a fallback - ideally setAllPlayers should be called separately
+      this.allPlayers = this.getAllPlayersFromCells();
+      this.distanceCalculator.setAllPlayers(this.allPlayers);
+    }
     
     const currentCell = this.gridCellTracker.getCurrentCell(player);
     const neighbors = this.gridCellTracker.getNeighborCells(currentCell);
@@ -67,15 +99,48 @@ export class InterestManager {
     return relevantEntities;
   }
 
+  /**
+   * Filter entities based on distance and visibility
+   * @param player The player entity
+   * @param candidates Candidate entities
+   * @returns Filtered entities
+   */
   private filterEntities(player: PlayerEntity, candidates: PlayerEntity[]): PlayerEntity[] {
     // Remove duplicates (an entity might be in multiple cells with adaptive sizing)
     const uniqueCandidates = Array.from(new Set(candidates));
     
-    return uniqueCandidates.filter(entity =>
-      entity !== player && // Don't include self
-      this.distanceCalculator.isInRange(player, entity) &&
-      this.factionVisibility.canSee(player, entity)
-    );
+    return uniqueCandidates.filter(entity => {
+      // Don't include self
+      if (entity === player) return false;
+      
+      // Check if entity is visible through direct vision or allied sharing
+      if (this.viewDistanceManager.isVisible(player, entity, this.allPlayers)) {
+        return true;
+      }
+      
+      // If not visible through view distance system, check faction visibility rules
+      return this.factionVisibility.canSee(player, entity);
+    });
+  }
+  
+  /**
+   * Get all players from all grid cells
+   * @returns Array of all player entities
+   */
+  private getAllPlayersFromCells(): PlayerEntity[] {
+    const allPlayers = new Set<PlayerEntity>();
+    
+    // Get all cells
+    const cellsMap = this.gridCellTracker.getAllCells();
+    
+    // Add all entities from all cells
+    cellsMap.forEach((cell) => {
+      for (const entity of cell.entities) {
+        allPlayers.add(entity);
+      }
+    });
+    
+    return Array.from(allPlayers);
   }
   
   /**
@@ -120,5 +185,12 @@ export class InterestManager {
    */
   getFactionVisibility(): FactionVisibility {
     return this.factionVisibility;
+  }
+  
+  /**
+   * Gets the view distance manager.
+   */
+  getViewDistanceManager(): ViewDistanceManager {
+    return this.viewDistanceManager;
   }
 }

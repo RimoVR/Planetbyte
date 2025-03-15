@@ -48,9 +48,40 @@ pnpm build
 
 The compiled JavaScript files will be available in the `dist` directory.
 
-## Running in Production
+## Docker Containerization
 
-Start the server in production mode:
+The server is containerized using Docker for deployment to the Hetzner server with Coolify.
+
+### Building the Docker Image
+
+```bash
+# From the server directory
+docker build -t planetbyte/server .
+
+# Or from the project root
+pnpm run docker:build
+```
+
+### Running the Docker Container Locally
+
+```bash
+docker run -p 3001:3001 -e PORT=3001 -e NODE_ENV=production planetbyte/server
+```
+
+## Deployment with Coolify
+
+The server is deployed to a Hetzner server using Coolify for container orchestration.
+
+```bash
+# From the project root
+pnpm run deploy
+```
+
+This will deploy the server container to the Coolify instance running on the Hetzner server.
+
+## Running in Production (Non-Docker)
+
+Start the server in production mode without Docker:
 
 ```bash
 pnpm start
