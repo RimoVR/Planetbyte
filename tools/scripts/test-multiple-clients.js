@@ -8,7 +8,7 @@ const { Client } = require('colyseus.js');
 const readline = require('readline');
 
 // Configuration
-const SERVER_URL = 'ws://localhost:3001';
+const SERVER_URL = 'ws://localhost:8080';
 const ROOM_NAME = 'grid_0_0';
 const NUM_CLIENTS = 3;
 const MOVEMENT_INTERVAL = 500; // ms
