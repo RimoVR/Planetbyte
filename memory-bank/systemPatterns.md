@@ -278,86 +278,129 @@ The server architecture is designed for scalability and real-time performance:
 
 ## Performance Monitoring and Optimization
 
-### Metrics Collection System
+[Previous content remains unchanged]
 
-**Purpose:**
-To track and analyze the performance of various game systems, particularly the interest management and network communication systems.
+## Adaptive Grid Cell Sizing
 
-**Key Components:**
-1. **MetricsCollector**
-   - Centralized metrics collection and aggregation
-   - Supports multiple metric types: counters, gauges, histograms, timers
-   - Automatic snapshotting and historical data retention
-   - Singleton pattern for global access
+### Overview
 
-2. **InterestMetrics**
-   - Specialized metrics for interest management system
-   - Tracks entity filtering efficiency, processing time, grid cell density
-   - Records network bandwidth usage and memory consumption
+Adaptive Grid Cell Sizing dynamically adjusts the size of grid cells in the spatial partitioning system based on player density. This optimization:
 
-**Implementation Details:**
-- Metrics are collected at key points in the interest management pipeline
-- Histograms track distribution of values (e.g., processing times)
-- Timers measure duration of critical operations
-- Metrics are exposed via API for monitoring and analysis
+- Reduces computational load in low-density areas by using larger cells
+- Improves precision in high-density areas by using smaller cells
+- Optimizes network traffic by focusing resources where needed
+- Adapts automatically to changing player distributions
 
-### Delta Compression System
+### Architecture
 
-**Purpose:**
-To optimize network bandwidth usage by only sending state changes (deltas) rather than complete state snapshots.
+```mermaid
+classDiagram
+    SpatialPartitioningSystem --> InterestManager
+    InterestManager --> GridCellTracker
+    InterestManager --> DistanceCalculator
+    InterestManager --> FactionVisibility
+    GridCellTracker --> GridConfiguration
+    GridCellTracker --> PlayerDensityAnalyzer
+    
+    class SpatialPartitioningSystem {
+        -InterestManager interestManager
+        -DeltaCompression deltaCompression
+        -players: PlayerEntity[]
+        +execute()
+        +onEntityAdded(entity)
+        +onEntityRemoved(entity)
+    }
+    
+    class InterestManager {
+        -GridCellTracker gridCellTracker
+        -DistanceCalculator distanceCalculator
+        -FactionVisibility factionVisibility
+        +getRelevantEntities(player)
+    }
+    
+    class GridCellTracker {
+        -GridConfiguration gridConfig
+        -PlayerDensityAnalyzer densityAnalyzer
+        -cells: Map~string, GridCell~
+        +getCurrentCell(entity)
+        +getNeighborCells(cell)
+        +updateCellSizes()
+    }
+    
+    class GridConfiguration {
+        -minCellSize: number
+        -maxCellSize: number
+        -densityThresholdLow: number
+        -densityThresholdHigh: number
+        -adaptationRate: number
+        +calculateOptimalSize(density, currentSize)
+    }
+    
+    class PlayerDensityAnalyzer {
+        -cellDensities: Map~string, number~
+        +analyzeDensity(cells)
+        +getDensityHotspots()
+        +getDensityColdspots()
+    }
+```
 
-**Key Components:**
-1. **DeltaCompression**
-   - Multiple compression levels (none, basic, advanced, binary)
-   - Type-specific optimizations for game data (positions, rotations)
-   - Tracks compression statistics (original size, compressed size, ratio)
+### Key Components
 
-2. **SpatialPartitioningSystem Integration**
-   - Maintains previous state for each client
-   - Calculates deltas between current and previous states
-   - Applies compression based on configured level
-   - Sends compressed deltas to clients
+#### GridConfiguration
+Manages parameters that control how grid cells resize based on player density:
 
-**Implementation Details:**
-- Uses JSON diffing for basic delta calculation
-- Special handling for common game data types:
-  - Relative position changes instead of absolute positions
-  - Quantized rotation values
-  - Efficient encoding of boolean flags
-- Compression statistics are tracked per-client and aggregated
+- `minCellSize`: Minimum cell dimension in game units
+- `maxCellSize`: Maximum cell dimension in game units
+- `densityThresholdLow`: Player count below which cells should expand
+- `densityThresholdHigh`: Player count above which cells should shrink
+- `adaptationRate`: How quickly cells resize (prevents abrupt changes)
 
-### Testing and Monitoring
+#### PlayerDensityAnalyzer
+Analyzes player density across grid cells to identify hotspots and coldspots:
 
-**Performance Test Script**
+- Tracks density per cell
+- Identifies high-density areas (hotspots)
+- Identifies low-density areas (coldspots)
+- Provides density metrics for optimization
 
-**Location:** tools/scripts/test-performance.js
+#### GridCellTracker
+Manages grid cells with variable sizes:
 
-**Features:**
-- Simulates multiple clients connecting to the server
-- Generates realistic player movement patterns
-- Tracks and reports performance metrics:
-  - Bandwidth usage (bytes sent/received)
-  - Update frequency (messages per second)
-  - Compression ratios
-  - Processing times
+- Tracks entity membership in cells
+- Handles cell resizing based on density
+- Manages entity redistribution after resizing
+- Determines cell adjacency for variable-sized cells
 
-**Usage:**
-1. Start the server:
-   ```bash
-   cd apps/server
-   npm run dev
-   ```
+#### InterestManager
+Coordinates the interest management system with adaptive grid sizing:
 
-2. Run the performance test:
-   ```bash
-   cd tools/scripts
-   node test-performance.js
-   ```
+- Triggers adaptive grid updates at appropriate intervals
+- Uses grid cells for initial entity filtering
+- Combines with distance and faction visibility filtering
 
-3. Monitor console output for performance metrics and statistics
+### Configuration Options
 
-**Expected Results:**
-- Significant bandwidth reduction from delta compression (50-70%)
-- Reduced processing time from efficient interest management
-- Scalable performance with increasing player counts
-- Detailed metrics for optimization and debugging
+The adaptive grid sizing system can be configured through the `SpatialPartitioningConfig` interface:
+
+```typescript
+interface SpatialPartitioningConfig {
+  gridSize: number;           // Default grid cell size
+  viewDistance: number;       // Base view distance
+  adaptiveGridSizing: boolean; // Enable/disable adaptive sizing
+  adaptiveUpdateInterval: number; // How often to update cell sizes (ms)
+}
+```
+
+### Performance Considerations
+
+- **Computational Overhead**: The density analysis runs periodically, not on every frame
+- **Transition Cost**: Entity redistribution has a cost - batched updates minimize impact
+- **Memory Usage**: Variable cell sizes may increase memory overhead - implemented pooling
+- **Network Traffic**: Cell size changes are communicated efficiently with delta compression
+
+### Future Improvements
+
+- Dynamic adaptation rate based on player count
+- Machine learning-based prediction of player movement patterns
+- Integration with day/night cycle for visibility-based adjustments
+- Region-specific adaptation based on map features
