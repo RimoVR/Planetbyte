@@ -2,11 +2,22 @@
   "name": "@planetbyte/common",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Shared code between client and server for PlanetByte game",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node fix-imports.js",
     "lint": "eslint src --ext ts",
     "test": "jest"
   },

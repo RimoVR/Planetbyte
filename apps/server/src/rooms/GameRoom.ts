@@ -4,7 +4,7 @@ import { Entity } from '../ecs/Entity';
 import { EntityManager } from '../ecs/EntityManager';
 import { SpatialPartitioningSystem } from '../ecs/systems/SpatialPartitioningSystem';
 import { ComponentType, TransformComponent, PlayerComponent, FactionComponent } from '../ecs/Component';
-import { Faction, PlayerInput, GameState, MessageType } from '@planetbyte/common';
+import { Faction, PlayerInput, GameState, MessageType, AbilityCategory } from '../types/common';
 import { logger } from '../utils/logger';
 
 /**
@@ -13,7 +13,7 @@ import { logger } from '../utils/logger';
  */
 export class GameRoom extends Room<GameState> {
   protected entityManager: EntityManager;
-  protected dispatcher: Dispatcher;
+  protected dispatcher: Dispatcher<GameRoom>;
   protected playerEntities: Map<string, Entity>; // Map of client IDs to player entities
   protected playerInputSequences: Map<string, number>; // Map of client IDs to last processed input sequence
   protected lastUpdateTime: number;
@@ -99,21 +99,21 @@ export class GameRoom extends Room<GameState> {
         level: 1,
         eloRating: 1000,
         abilities: {
-          movement: { id: 'dash', name: 'Dash', category: 'movement', cooldown: 5, currentCooldown: 0, augmentations: [] },
-          offense: { id: 'shoot', name: 'Shoot', category: 'offense', cooldown: 0.5, currentCooldown: 0, augmentations: [] },
-          defense: { id: 'shield', name: 'Shield', category: 'defense', cooldown: 10, currentCooldown: 0, augmentations: [] },
-          support: { id: 'heal', name: 'Heal', category: 'support', cooldown: 15, currentCooldown: 0, augmentations: [] }
+          movement: { id: 'dash', name: 'Dash', category: AbilityCategory.MOVEMENT, cooldown: 5, currentCooldown: 0, augmentations: [] },
+          offense: { id: 'shoot', name: 'Shoot', category: AbilityCategory.OFFENSE, cooldown: 0.5, currentCooldown: 0, augmentations: [] },
+          defense: { id: 'shield', name: 'Shield', category: AbilityCategory.DEFENSE, cooldown: 10, currentCooldown: 0, augmentations: [] },
+          support: { id: 'heal', name: 'Heal', category: AbilityCategory.SUPPORT, cooldown: 15, currentCooldown: 0, augmentations: [] }
         },
         inventory: []
       };
-    }
 
-    // Broadcast player join event
-    this.broadcast(MessageType.PLAYER_JOIN, {
-      id: client.sessionId,
-      username: player?.username || 'Unknown',
-      faction: faction?.faction || Faction.FACTION_1
-    });
+      // Broadcast player join event
+      this.broadcast(MessageType.PLAYER_JOIN, {
+        id: client.sessionId,
+        username: player?.username || 'Unknown',
+        faction: faction?.faction || Faction.FACTION_1
+      });
+    }
   }
 
   /**
@@ -295,12 +295,16 @@ export class GameRoom extends Room<GameState> {
     this.entityManager.update();
     
     // Update game time
-    this.state.time += deltaTime;
+    if (this.state.time !== undefined) {
+      this.state.time += deltaTime;
+    } else {
+      this.state.time = deltaTime;
+    }
     
     // Update day/night cycle
     // Day/night cycle is 1 hour (3600 seconds)
     const dayNightCycle = 3600;
-    const timeOfDay = this.state.time % dayNightCycle;
+    const timeOfDay = (this.state.time as number) % dayNightCycle;
     const isNight = timeOfDay > dayNightCycle / 2;
     
     if (isNight !== this.state.isNight) {

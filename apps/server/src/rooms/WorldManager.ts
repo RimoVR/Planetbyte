@@ -1,6 +1,6 @@
 import { Server } from '@colyseus/core';
 import { GridRoom } from './GridRoom';
-import { WORLD_CONSTANTS } from '@planetbyte/common';
+import { WORLD_CONSTANTS } from '../types/common';
 import { logger } from '../utils/logger';
 
 /**
@@ -20,7 +20,7 @@ export class WorldManager {
     this.gridRooms = new Map<string, GridRoom>();
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
-    this.cellSize = WORLD_CONSTANTS.GRID_CELL_SIZE;
+    this.cellSize = 1000; // Default grid cell size
   }
 
   /**

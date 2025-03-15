@@ -83,6 +83,14 @@ This file captures important patterns, preferences, and project intelligence for
   - For complex operations, use separate commands or PowerShell scripts
   - Example: Instead of `cd apps/server && pnpm run dev`, use `cd apps/server; pnpm run dev`
 
+### Package Management
+
+- **pnpm Cleanup**: The `pnpm clean` command is not available in this project. Instead, use:
+  - `pnpm store prune` to remove unused packages from the store
+  - Manual deletion of node_modules and dist directories when needed
+  - `pnpm rebuild` to rebuild all packages
+  - `pnpm install --force` to reinstall all dependencies
+
 ## Known Challenges
 
 ### Technical Challenges

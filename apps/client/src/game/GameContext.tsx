@@ -75,7 +75,7 @@ class MainScene extends Phaser.Scene {
    */
   private setupInput(): void {
     // Set up keyboard input
-    const cursors = this.input.keyboard.createCursorKeys();
+    const cursors = this.input.keyboard?.createCursorKeys();
     
     // Store reference to cursors for use in update
     (this as any).cursors = cursors;
@@ -192,7 +192,7 @@ class MainScene extends Phaser.Scene {
    * Reconcile client position with server position
    */
   private reconcileWithServer(): void {
-    if (!this.player || !this.serverPosition) return;
+    if (!this.player || !this.serverPosition || !this.pendingInputs) return;
     
     // Remove inputs that have been processed by the server
     while (this.pendingInputs.length > 0) {

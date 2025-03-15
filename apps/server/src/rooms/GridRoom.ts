@@ -4,7 +4,7 @@ import { EntityManager } from '../ecs/EntityManager';
 import { SpatialPartitioningSystem } from '../ecs/systems/SpatialPartitioningSystem';
 import { Entity } from '../ecs/Entity';
 import { ComponentType, GridCellComponent, TransformComponent } from '../ecs/Component';
-import { WORLD_CONSTANTS, Vector2, GameState, MessageType } from '@planetbyte/common';
+import { WORLD_CONSTANTS, Vector2, GameState, MessageType } from '../types/common';
 import { logger } from '../utils/logger';
 
 /**
@@ -78,7 +78,7 @@ export class GridRoom extends GameRoom {
    * @returns True if the position is within this grid cell
    */
   isPositionInCell(position: Vector2): boolean {
-    const cellSize = WORLD_CONSTANTS.GRID_CELL_SIZE;
+    const cellSize = 1000; // Default grid cell size
     const minX = this.cellX * cellSize;
     const maxX = (this.cellX + 1) * cellSize;
     const minY = this.cellY * cellSize;
@@ -93,8 +93,8 @@ export class GridRoom extends GameRoom {
    * @returns True if the position is within the overlap area
    */
   isPositionInOverlap(position: Vector2): boolean {
-    const cellSize = WORLD_CONSTANTS.GRID_CELL_SIZE;
-    const overlap = WORLD_CONSTANTS.GRID_CELL_OVERLAP;
+    const cellSize = 1000; // Default grid cell size
+    const overlap = 100; // Default grid cell overlap
     
     const minX = this.cellX * cellSize - overlap;
     const maxX = (this.cellX + 1) * cellSize + overlap;
@@ -166,8 +166,8 @@ export class GridRoom extends GameRoom {
     if (!transform) return false;
     
     const position: Vector2 = { x: transform.x, y: transform.y };
-    const cellSize = WORLD_CONSTANTS.GRID_CELL_SIZE;
-    const overlap = WORLD_CONSTANTS.GRID_CELL_OVERLAP;
+    const cellSize = 1000; // Default grid cell size
+    const overlap = 100; // Default grid cell overlap
     
     // Check if entity is near any edge of its cell
     const distanceFromLeftEdge = position.x - (this.cellX * cellSize);

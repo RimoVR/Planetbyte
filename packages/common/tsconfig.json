@@ -1,11 +1,13 @@
 {
   "extends": "@planetbyte/config-tsconfig/base.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "baseUrl": ".",
-    "paths": {
-      "@planetbyte/*": ["./src/*"]
-    }
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationDir": "dist/types"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

@@ -11,6 +11,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@colyseus/arena": "^0.14.25",
+    "@colyseus/command": "^0.3.1",
+    "@colyseus/core": "^0.16.10",
+    "@colyseus/ecs": "0.4.0-alpha.4",
+    "@colyseus/monitor": "^0.16.6",
+    "@colyseus/ws-transport": "^0.16.3",
     "@supabase/supabase-js": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",

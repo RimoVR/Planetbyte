@@ -6,7 +6,7 @@ import { WebSocketTransport } from '@colyseus/ws-transport';
 import { monitor } from '@colyseus/monitor';
 import { config } from 'dotenv';
 import { WorldManager } from './rooms/WorldManager';
-import { WORLD_CONSTANTS } from '@planetbyte/common';
+import { WORLD_CONSTANTS } from './types/common';
 import { logger } from './utils/logger';
 
 // Load environment variables
@@ -50,7 +50,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Start server
-const port = Number(process.env.PORT) || 3001;
+const port = Number(process.env.PORT) || 8080; // Changed port to avoid conflict
 gameServer.listen(port).then(() => {
   logger.info(`🚀 Game server started on port ${port}`);
   logger.info(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);

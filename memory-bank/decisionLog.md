@@ -103,6 +103,62 @@ This document records key decisions made during the development of PlanetByte, i
 - More interesting and varied gameplay environments
 - Support for the map shrink and regeneration mechanics
 
+### AD-005: Local Types File for Module Resolution
+
+**Date**: March 15, 2025
+
+**Decision**: Create a local types file in the server project that defines all necessary types and constants, decoupling it from potential common package build issues.
+
+**Context**: The server was experiencing persistent TypeScript build errors related to missing exports from the @planetbyte/common package, despite proper source definitions.
+
+**Rationale**:
+- Resolves immediate build errors without requiring changes to the common package
+- Decouples the server from potential common package build issues
+- Provides a more robust solution that isn't affected by module resolution mismatches
+- Allows for server-specific type extensions if needed
+- Simplifies debugging by having all type definitions in one place
+
+**Alternatives Considered**:
+1. **Fix common package build process**: Considered but would require more extensive changes to the build pipeline.
+2. **Convert common package to CommonJS**: Considered but would affect all packages using the common package.
+3. **Convert server to ESM**: Considered but would require changes to server code and dependencies.
+4. **Direct import from source files**: Considered but would bypass the build process and could lead to inconsistencies.
+
+**Consequences**:
+- Potential duplication of type definitions between server and common package
+- Need to keep local types in sync with common package changes
+- Immediate resolution of build errors
+- Improved development experience with fewer build issues
+- More robust solution that isn't affected by module resolution mismatches
+
+### AD-006: Hybrid Interest Management System
+
+**Date**: March 15, 2025
+
+**Decision**: Implement a hybrid interest management system that combines grid-based spatial partitioning with distance-based filtering and faction visibility rules.
+
+**Context**: The game needs to efficiently filter entity updates to minimize network traffic while ensuring players receive all relevant information.
+
+**Rationale**:
+- Reduces network traffic by only sending updates for entities that are relevant to each player
+- Improves scalability by reducing server processing and bandwidth requirements
+- Combines multiple filtering techniques for more precise relevance determination
+- Supports the fog of war and visibility mechanics described in the project brief
+- Provides a foundation for future optimizations like delta compression
+
+**Alternatives Considered**:
+1. **Pure distance-based filtering**: Considered but would be less efficient for large numbers of entities.
+2. **Visibility-only filtering**: Considered but would send updates for entities that are too far away to be relevant.
+3. **Client-side filtering**: Rejected due to increased potential for cheating and higher bandwidth usage.
+4. **Quad-tree spatial partitioning**: Considered but rejected for initial implementation due to added complexity.
+
+**Consequences**:
+- More complex server-side logic for entity filtering
+- Need for careful tuning of grid cell size and view distance parameters
+- Significantly reduced network traffic and improved scalability
+- Better player experience with more relevant updates
+- Foundation for implementing fog of war and other visibility mechanics
+
 ## Technical Decisions
 
 ### TD-001: Phaser 3 as Game Engine
@@ -234,6 +290,61 @@ This document records key decisions made during the development of PlanetByte, i
 - Better consistency between client and server behavior
 - Improved player experience with accurate prediction
 - Reduced development time for new features
+
+### TD-006: Module Resolution Strategy
+
+**Date**: March 15, 2025
+
+**Decision**: Use a local types file in the server project for immediate resolution of module resolution issues, with a plan to standardize module systems in the future.
+
+**Context**: The server was experiencing persistent TypeScript build errors related to missing exports from the @planetbyte/common package, despite proper source definitions.
+
+**Rationale**:
+- Provides immediate resolution of build errors without extensive changes
+- Decouples the server from common package build issues
+- Allows for independent development of server and common package
+- Simplifies debugging by having all type definitions in one place
+- Serves as a temporary solution until module systems can be standardized
+
+**Alternatives Considered**:
+1. **Standardize on CommonJS**: Considered but would require changes to packages using ESM.
+2. **Standardize on ESM**: Considered but would require changes to packages using CommonJS.
+3. **Use path aliases**: Considered but wouldn't resolve the underlying module resolution issues.
+4. **Use bundlers**: Considered but would add complexity to the build process.
+
+**Consequences**:
+- Temporary duplication of type definitions
+- Need to keep local types in sync with common package changes
+- Immediate resolution of build errors
+- Improved development experience with fewer build issues
+- Foundation for future standardization of module systems
+
+### TD-007: Component-Based Interest Management
+
+**Date**: March 15, 2025
+
+**Decision**: Implement the interest management system using a component-based architecture with separate classes for different filtering aspects.
+
+**Context**: The interest management system needs to be flexible, maintainable, and extensible to support various filtering criteria.
+
+**Rationale**:
+- Separates concerns into distinct components (grid cells, distance, faction visibility)
+- Makes the system more maintainable and testable
+- Allows for easy extension with new filtering criteria
+- Provides clear interfaces between components
+- Follows the component-entity-system architecture used throughout the project
+
+**Alternatives Considered**:
+1. **Monolithic interest manager**: Considered but rejected due to reduced maintainability and flexibility.
+2. **Event-based filtering system**: Considered but would add complexity without clear benefits.
+3. **Client-side filtering with server validation**: Rejected due to increased potential for cheating.
+
+**Consequences**:
+- More initial implementation complexity
+- Clearer separation of concerns
+- More testable and maintainable code
+- Easier to extend with new filtering criteria
+- Better alignment with the overall architecture
 
 ## Implementation Decisions
 
@@ -585,6 +696,74 @@ This document records key decisions made during the development of PlanetByte, i
 - Clearer package structure for new developers
 - Potential need to reintroduce shared configuration packages in the future
 
+### ID-013: Module Resolution Fix with Local Types
+
+**Date**: March 15, 2025
+
+**Decision**: Create a local types file in the server project to resolve module resolution issues with @planetbyte/common.
+
+**Context**: The server was experiencing persistent TypeScript build errors related to missing exports from the @planetbyte/common package, despite proper source definitions.
+
+**Rationale**:
+- Provides immediate resolution of build errors without extensive changes
+- Decouples the server from common package build issues
+- Allows for independent development of server and common package
+- Simplifies debugging by having all type definitions in one place
+- Serves as a temporary solution until module systems can be standardized
+
+**Implementation Details**:
+1. **Created local types file**: Implemented a comprehensive types file in apps/server/src/types/common.ts
+2. **Updated import paths**: Changed all imports from @planetbyte/common to use the local types file
+3. **Added missing constants**: Included GRID_CELL_SIZE and GRID_CELL_OVERLAP in the WORLD_CONSTANTS object
+4. **Fixed optional properties**: Added proper null/undefined checks for optional properties in GameState
+
+**Alternatives Considered**:
+1. **Fix common package build process**: Considered but would require more extensive changes to the build pipeline.
+2. **Convert common package to CommonJS**: Considered but would affect all packages using the common package.
+3. **Convert server to ESM**: Considered but would require changes to server code and dependencies.
+4. **Direct import from source files**: Considered but would bypass the build process and could lead to inconsistencies.
+
+**Consequences**:
+- Temporary duplication of type definitions
+- Need to keep local types in sync with common package changes
+- Immediate resolution of build errors
+- Improved development experience with fewer build issues
+- Foundation for future standardization of module systems
+
+### ID-014: Interest Management System Implementation
+
+**Date**: March 15, 2025
+
+**Decision**: Implement a component-based interest management system with grid cell tracking, distance calculation, and faction visibility.
+
+**Context**: The game needs to efficiently filter entity updates to minimize network traffic while ensuring players receive all relevant information.
+
+**Rationale**:
+- Reduces network traffic by only sending updates for entities that are relevant to each player
+- Improves scalability by reducing server processing and bandwidth requirements
+- Provides a flexible and extensible architecture for future enhancements
+- Supports the fog of war and visibility mechanics described in the project brief
+- Aligns with the component-entity-system architecture used throughout the project
+
+**Implementation Details**:
+1. **InterestManager**: Core class that coordinates filtering logic
+2. **GridCellTracker**: Handles spatial partitioning with grid cells
+3. **DistanceCalculator**: Calculates view distance and determines if entities are within range
+4. **FactionVisibility**: Determines if entities are visible based on faction membership
+5. **SpatialPartitioningSystem**: Integrates interest management with the ECS architecture
+
+**Alternatives Considered**:
+1. **Monolithic interest manager**: Considered but rejected due to reduced maintainability and flexibility.
+2. **Pure distance-based filtering**: Considered but would be less efficient for large numbers of entities.
+3. **Client-side filtering**: Rejected due to increased potential for cheating and higher bandwidth usage.
+
+**Consequences**:
+- More initial implementation complexity
+- Clearer separation of concerns
+- More testable and maintainable code
+- Significantly reduced network traffic and improved scalability
+- Foundation for implementing fog of war and other visibility mechanics
+
 ## Future Decisions Pending
 
 ### FD-001: Asset Pipeline and Art Style Implementation
@@ -620,3 +799,38 @@ This document records key decisions made during the development of PlanetByte, i
 - Balance between factions
 - Server resource utilization
 - Player experience and preferences
+
+### FD-003: Module System Standardization
+
+**Status**: Under consideration
+
+**Context**: The project currently has a mix of ESM and CommonJS modules, causing potential compatibility issues.
+
+**Options Being Considered**:
+1. Standardize on CommonJS for all packages
+2. Standardize on ESM for all packages
+3. Maintain hybrid approach with clear boundaries
+4. Use bundlers to abstract module system differences
+
+**Decision Criteria**:
+- Compatibility with existing libraries and frameworks
+- Development experience and tooling support
+- Build performance and complexity
+- Future compatibility with evolving JavaScript ecosystem
+
+### FD-004: Performance Metrics Collection
+
+**Status**: Under consideration
+
+**Context**: The interest management system needs performance monitoring to ensure it scales effectively.
+
+**Options Being Considered**:
+1. Custom metrics collection integrated with the interest management system
+2. Third-party monitoring solutions
+3. Distributed tracing for end-to-end performance analysis
+
+**Decision Criteria**:
+- Overhead of metrics collection
+- Granularity of performance data
+- Ease of integration with existing systems
+- Visualization and analysis capabilities

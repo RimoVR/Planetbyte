@@ -7,7 +7,7 @@ import { Faction } from '@planetbyte/common';
 function App() {
   const { gameState, initializeGame } = useGame();
   const { authState, login } = useAuth();
- 
+  
 
   // Initialize the game when the component mounts
   useEffect(() => {
@@ -20,7 +20,7 @@ function App() {
   // Auto-login for development purposes
   useEffect(() => {
     if (!authState.isAuthenticated && !authState.isLoading) {
-      login('Player', Faction.FACTION_1);
+      login('Player', Faction.RED);
     }
   }, [authState.isAuthenticated, authState.isLoading, login]);
 
@@ -91,12 +91,12 @@ function App() {
 // Helper function to get faction name from faction enum
 function getFactionName(faction: Faction): string {
   switch (faction) {
-    case Faction.FACTION_1:
+    case Faction.RED:
       return 'Red Dominion';
-    case Faction.FACTION_2:
-      return 'Green Collective';
-    case Faction.FACTION_3:
+    case Faction.BLUE:
       return 'Blue Alliance';
+    case Faction.GREEN:
+      return 'Green Collective';
     default:
       return 'Unknown';
   }

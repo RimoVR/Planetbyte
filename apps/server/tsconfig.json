@@ -14,7 +14,8 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@planetbyte/*": ["../../packages/common/src/*"]
+      "@planetbyte/common": ["../../packages/common/dist"],
+      "@planetbyte/common/*": ["../../packages/common/dist/*"]
     }
   },
   "include": ["src"],

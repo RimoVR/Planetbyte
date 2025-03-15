@@ -2,7 +2,7 @@ import { BaseSystem } from '../System';
 import { Entity } from '../Entity';
 import { ComponentType, GridCellComponent, TransformComponent } from '../Component';
 import { EntityManager } from '../EntityManager';
-import { WORLD_CONSTANTS, Vector2 } from '@planetbyte/common';
+import { WORLD_CONSTANTS, Vector2 } from '../../types/common';
 import { logger } from '../../utils/logger';
 
 /**
@@ -19,9 +19,9 @@ export class SpatialPartitioningSystem extends BaseSystem {
   constructor(entityManager: EntityManager) {
     super([ComponentType.TRANSFORM]);
     
-    this.gridCellSize = WORLD_CONSTANTS.GRID_CELL_SIZE;
+    this.gridCellSize = 1000; // Default grid cell size
     this.entityManager = entityManager;
-    this.gridCellOverlap = WORLD_CONSTANTS.GRID_CELL_OVERLAP;
+    this.gridCellOverlap = 100; // Default grid cell overlap
     this.gridCells = new Map<string, Entity>();
     this.entityCells = new Map<number, Set<string>>();
   }
