@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
+  "scripts": {
+    "build": "echo 'No build required for config package'"
+  },
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^8.0.0",
-    "eslint-plugin-react": "^7.0.0",
-    "eslint-plugin-react-hooks": "^4.0.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0"
+    "eslint-plugin-react": "^7.0.0",
+    "eslint-plugin-react-hooks": "^4.0.0"
   }
 }

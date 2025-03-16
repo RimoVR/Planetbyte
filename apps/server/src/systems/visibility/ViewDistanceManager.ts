@@ -5,6 +5,7 @@ import { PlayerEquipmentManager } from './PlayerEquipmentManager';
 import { AlliedViewSharing } from './AlliedViewSharing';
 import { DistanceCalculator } from '../DistanceCalculator';
 import { ViewDistanceMetrics } from '../../types/metrics';
+import { FactionVisibility } from '../FactionVisibility';
 
 /**
  * Manages view distance calculations for all players
@@ -13,6 +14,7 @@ export class ViewDistanceManager {
   private environmentalManager: EnvironmentalConditionManager;
   private equipmentManager: PlayerEquipmentManager;
   private alliedViewSharing: AlliedViewSharing;
+  private factionVisibility: FactionVisibility;
   private distanceCalculator: DistanceCalculator | null = null;
   private metrics: ViewDistanceMetrics;
   
@@ -25,6 +27,7 @@ export class ViewDistanceManager {
     this.environmentalManager = new EnvironmentalConditionManager();
     this.equipmentManager = new PlayerEquipmentManager();
     this.alliedViewSharing = new AlliedViewSharing();
+    this.factionVisibility = new FactionVisibility();
     this.metrics = ViewDistanceMetrics.getInstance();
     
     console.log('ViewDistanceManager initialized');
@@ -124,6 +127,11 @@ export class ViewDistanceManager {
    * @returns True if the target is visible
    */
   isVisible(observer: PlayerEntity, target: PlayerEntity, allPlayers: PlayerEntity[]): boolean {
+    // First check faction-specific visibility rules (like stealth)
+    if (!this.factionVisibility.canSee(observer, target)) {
+      return false;
+    }
+    
     // If same faction, check direct visibility and allied visibility
     if (observer.faction === target.faction) {
       // Calculate distance between observer and target
@@ -166,10 +174,8 @@ export class ViewDistanceManager {
    * @returns True if the target is within the view cone
    */
   private isInViewCone(observer: PlayerEntity, target: PlayerEntity, allPlayers: PlayerEntity[]): boolean {
-    // For now, we'll use a default rotation since PlayerEntity doesn't have rotation
-    // In a real implementation, this would come from the player's state
-    // This is a temporary solution until the entity model is updated
-    const defaultRotation = 0; // Facing right (1,0)
+    // Use the player's rotation from the entity
+    const rotation = observer.rotation;
     
     // Calculate view cone parameters if not already cached
     this.calculateViewCone(observer, allPlayers);
@@ -225,10 +231,8 @@ export class ViewDistanceManager {
       // Get the base view distance
       const viewDistance = this.calculateViewDistance(player, allPlayers);
       
-      // Calculate facing direction vector from rotation
-      // In a real implementation, this would come from the player's state
-      // This is a temporary solution until the entity model is updated
-      const rotation = 0; // Default rotation (facing right)
+      // Calculate facing direction vector from player's rotation
+      const rotation = player.rotation;
       const facingDirection: Vector2 = {
         x: Math.cos(rotation),
         y: Math.sin(rotation)
@@ -360,6 +364,13 @@ export class ViewDistanceManager {
   }
   
   /**
+   * Get the faction visibility manager
+   */
+  getFactionVisibility(): FactionVisibility {
+    return this.factionVisibility;
+  }
+  
+  /**
    * Get debug information about a player's view distance
    * @param playerId The player ID
    * @returns Debug information about the player's view distance
@@ -370,6 +381,17 @@ export class ViewDistanceManager {
     }
     
     const entry = this.viewDistanceCache.get(playerId)!;
+    
+    // Find the player entity to get stealth information
+    // This would be replaced with a proper entity lookup in a real implementation
+    let stealthInfo = {
+      hasStealthActive: false,
+      stealthEffectiveness: 0,
+      stealthState: 'UNKNOWN'
+    };
+    
+    // In a real implementation, we would look up the player entity
+    // For now, we'll just provide placeholder stealth information
     
     return {
       playerId,
@@ -383,7 +405,11 @@ export class ViewDistanceManager {
       // Include view cone information if available
       hasViewCone: entry.hasViewCone,
       viewConeAngle: entry.viewConeAngle,
-      viewConeDistance: entry.viewConeDistance
+      viewConeDistance: entry.viewConeDistance,
+      // Include stealth information
+      hasStealthActive: stealthInfo.hasStealthActive,
+      stealthEffectiveness: stealthInfo.stealthEffectiveness,
+      stealthState: stealthInfo.stealthState
     };
   }
   
@@ -440,4 +466,8 @@ export interface ViewDistanceDebugInfo {
   hasViewCone?: boolean;
   viewConeAngle?: number;
   viewConeDistance?: number;
+  // Stealth information
+  hasStealthActive?: boolean;
+  stealthEffectiveness?: number;
+  stealthState?: string;
 }

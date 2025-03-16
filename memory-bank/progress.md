@@ -20,12 +20,24 @@
   - Converted ASCII diagrams to mermaid flowcharts
   - Added flowchart standard to .clinerules
   - Improved visualization of system relationships
+- [x] Implemented stealth detection system
+  - Added equipment-based stealth detection
+  - Implemented ability-based stealth detection
+  - Created stealth detection range calculation
+  - Integrated with faction visibility system
 
 ## In Progress
 - [ ] Infrastructure migration planning
   - Designing containerization strategy
   - Defining Hetzner server requirements
   - Planning Coolify implementation
+  - Setting up local Docker environment
+    - Created docker-compose.yml
+    - Created nginx.conf
+    - Created Dockerfile for client
+    - Troubleshooting Docker build issues
+- Modified the client Dockerfile to skip the build step and start the dev server directly.
+- Added esbuild as a dev dependency to the client package.json file.
 - [ ] MVP feature prioritization
   - Categorizing tasks by MVP necessity
   - Identifying core gameplay elements
@@ -91,7 +103,8 @@
 - [ ] AI-generated artwork integration
 
 ## Known Issues
-- None currently identified for the new design approach
+- Still need to resolve the TypeScript build issues in the client package.
+- Need to investigate why the nginx container is not starting.
 
 ## Timeline
 ```mermaid

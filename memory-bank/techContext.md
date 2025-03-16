@@ -10,6 +10,11 @@
 - **Nginx**: Reverse proxy for routing and SSL termination
 - **Cloudflare**: CDN and DDoS protection
 
+### Local Development Environment
+- **Docker**: Used for local development environment to simulate production setup
+- **Docker Compose**: Used to orchestrate multiple Docker containers
+- **Services**: Colyseus, Redis, Supabase, Nginx, Phaser Client
+
 ### Container Structure
 ```mermaid
 flowchart TD
@@ -33,6 +38,15 @@ flowchart TD
 - **Internal Network**: Docker network for container communication
 - **External Access**: Nginx reverse proxy with SSL termination
 - **Cloudflare Integration**: DNS and DDoS protection
+
+### Local Docker Network
+- **Network Name**: planetbyte-net
+- **Service Discovery**: Docker's built-in DNS for service resolution
+- **Port Mapping**:
+  - Phaser Client: 3000 (dev), 80 (prod)
+  - Colyseus: 2567 (WebSocket)
+  - Supabase: 8000 (API)
+  - Nginx: 80, 443
 
 ## Developer Art System
 

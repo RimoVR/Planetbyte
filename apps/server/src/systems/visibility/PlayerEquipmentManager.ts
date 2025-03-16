@@ -23,6 +23,55 @@ export class PlayerEquipmentManager {
   }
   
   /**
+   * Check if a player can detect stealth based on their equipment and abilities
+   * @param player The player entity
+   * @returns True if the player can detect stealth
+   */
+  canDetectStealth(player: PlayerEntity): boolean {
+    // Check for equipment that can detect stealth
+    if (this.hasStealthDetectionEquipment(player)) {
+      return true;
+    }
+    
+    // Check for abilities that can detect stealth
+    if (this.hasStealthDetectionAbility(player)) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Get the stealth detection range for a player
+   * @param player The player entity
+   * @returns The stealth detection range (0 if cannot detect stealth)
+   */
+  getStealthDetectionRange(player: PlayerEntity): number {
+    if (!this.canDetectStealth(player)) {
+      return 0;
+    }
+    
+    let range = 0;
+    
+    // Check for thermal goggles
+    if (this.hasEquipment(player, 'thermal_goggles')) {
+      range = Math.max(range, 40); // 40 units detection range
+    }
+    
+    // Check for stealth detector
+    if (this.hasEquipment(player, 'stealth_detector')) {
+      range = Math.max(range, 30); // 30 units detection range
+    }
+    
+    // Check for active abilities
+    if (this.hasActiveAbility(player, 'enhanced_perception')) {
+      range = Math.max(range, 50); // 50 units detection range
+    }
+    
+    return range;
+  }
+  
+  /**
    * Get view distance modifiers from player equipment
    * @param player The player entity
    * @returns The combined equipment modifier
@@ -105,5 +154,43 @@ export class PlayerEquipmentManager {
     // In a real implementation, this would check the player's actual active abilities
     const mockAbilityChance = 0.1; // 10% chance to have each ability active
     return Math.random() < mockAbilityChance;
+  }
+  
+  /**
+   * Check if a player has equipment that can detect stealth
+   * @param player The player entity
+   * @returns True if the player has stealth detection equipment
+   */
+  private hasStealthDetectionEquipment(player: PlayerEntity): boolean {
+    // Check for thermal goggles
+    if (this.hasEquipment(player, 'thermal_goggles')) {
+      return true;
+    }
+    
+    // Check for stealth detector
+    if (this.hasEquipment(player, 'stealth_detector')) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Check if a player has abilities that can detect stealth
+   * @param player The player entity
+   * @returns True if the player has stealth detection abilities
+   */
+  private hasStealthDetectionAbility(player: PlayerEntity): boolean {
+    // Check for enhanced perception ability
+    if (this.hasActiveAbility(player, 'enhanced_perception')) {
+      return true;
+    }
+    
+    // Check for scanner ability
+    if (this.hasActiveAbility(player, 'scanner')) {
+      return true;
+    }
+    
+    return false;
   }
 }

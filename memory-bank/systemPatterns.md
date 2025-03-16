@@ -8,21 +8,50 @@ PlanetByte follows a client-server architecture with clear separation of concern
 
 ```mermaid
 flowchart TD
-    subgraph "Hetzner Server"
-        subgraph "Coolify (Container Orchestration)"
-            A["Frontend Container\nPhaser 3 + React"]
-            B["Colyseus Game Server Container"]
-            C["Self-hosted Supabase Container"]
-            D["Redis Container"]
-            E["Nginx Reverse Proxy Container"]
-        end
-    end
+    Coolify -->|Manages| Colyseus
+    Coolify -->|Manages| Supabase
+    Coolify -->|Manages| Redis
+    Coolify -->|Manages| PhaserClient
+    Coolify -->|Manages| Nginx
+
+    PhaserClient -->|WebSocket| Colyseus
+    PhaserClient -->|REST API| Supabase
+    Colyseus -->|Redis Pub/Sub| Redis
+    Colyseus -->|REST API| Supabase
+    Supabase -->|PostgreSQL| Database[(Postgres)]
+    Nginx -->|Reverse Proxy| PhaserClient
+    Nginx -->|Proxy Pass| Colyseus
+    Nginx -->|Proxy Pass| Supabase
+
+    classDef orchestration fill:#f9f,stroke:#333;
+    classDef game fill:#8f8,stroke:#333;
+    classDef data fill:#88f,stroke:#333;
+    classDef proxy fill:#f88,stroke:#333;
     
-    A <--> E
-    B <--> E
-    B <--> C & D
-    E <--> Internet["Internet/Users"]
+    class Coolify orchestration;
+    class Colyseus,PhaserClient game;
+    class Supabase,Redis,Database data;
+    class Nginx proxy;
 ```
+
+### Service Interactions
+
+1. **Coolify's Role**: Manages container lifecycle (start/stop/update), not data flow.
+2. **Colyseus ↔ Supabase**:
+   - Player authentication validation
+   - Persistent data storage/retrieval
+   - Match history recording
+3. **Colyseus ↔ Redis**:
+   - Real-time pub/sub messaging
+   - Session state caching
+   - Leaderboard updates
+4. **Phaser ↔ Services**:
+   - WebSocket for game state (Colyseus)
+   - REST API for auth/assets (Supabase)
+5. **Nginx Routing**:
+   - /api/* → Supabase
+   - /ws → Colyseus
+   - / → Phaser client
 
 ### Client-Side Architecture
 
@@ -242,6 +271,15 @@ classDiagram
     
     class FactionVisibility {
         +canSee(observer, target)
+        +canDetectStealth(observer)
+        +getStealthDetectionRange(observer)
+    }
+    
+    class PlayerEquipmentManager {
+        +canDetectStealth(player)
+        +getStealthDetectionRange(player)
+        +hasStealthDetectionEquipment(player)
+        +hasStealthDetectionAbility(player)
     }
 ```
 
@@ -279,35 +317,10 @@ classDiagram
 - **Delta Updates**: Only sends visibility changes when they occur
 - **Caching**: Caches visibility calculations for static conditions
 - **Batch Processing**: Processes visibility updates in batches for efficiency
-```
 
-## Performance Considerations
+### Adaptive Grid Cell Sizing
 
-### Client-Side Optimizations
-- Efficient sprite batching for rendering
-- Asset preloading and caching
-- Visibility culling for off-screen entities
-- Throttled network updates based on relevance
-
-### Server-Side Optimizations
-- Interest management to filter updates by proximity
-- Spatial partitioning for efficient entity lookup
-- Optimized physics calculations with simplified hitboxes
-- Batched database operations for persistence
-
-### Network Optimizations
-- Delta compression for state updates
-- Binary protocol for efficient data transfer
-- Prioritized updates based on gameplay relevance
-- Adaptive update rates based on connection quality
-
-## Performance Monitoring and Optimization
-
-[Previous content remains unchanged]
-
-## Adaptive Grid Cell Sizing
-
-### Overview
+#### Overview
 
 Adaptive Grid Cell Sizing dynamically adjusts the size of grid cells in the spatial partitioning system based on player density. This optimization:
 
@@ -367,7 +380,61 @@ classDiagram
         +getDensityHotspots()
         +getDensityColdspots()
     }
+}
 ```
+
+### Stealth Detection System
+
+The Stealth Detection System determines whether a player can detect another player who is using stealth abilities or equipment. The system considers both equipment and abilities that grant stealth detection capabilities.
+
+#### Key Components
+
+1. **PlayerEquipmentManager**
+   - Manages player equipment that affects stealth detection
+   - Tracks items like thermal goggles and stealth detectors
+   - Calculates stealth detection range based on equipped items
+
+2. **FactionVisibility**
+   - Handles faction-specific visibility rules
+   - Determines if a player can detect stealth based on equipment and abilities
+   - Calculates effective stealth detection range
+
+#### Detection Logic
+
+```mermaid
+flowchart TD
+    A[Check Stealth Detection] --> B{Has Stealth Detection Equipment?}
+    B -->|Yes| C[Return True]
+    B -->|No| D{Has Stealth Detection Ability?}
+    D -->|Yes| C
+    D -->|No| E[Return False]
+```
+
+#### Range Calculation
+
+The stealth detection range is determined by:
+
+1. **Base Range**: Minimum detection range (10 units)
+2. **Equipment Modifiers**:
+   - Thermal Goggles: +40 units
+   - Stealth Detector: +30 units
+3. **Ability Modifiers**:
+   - Enhanced Perception: +50 units
+   - Scanner: +25 units
+
+The system uses the maximum range from all applicable modifiers.
+
+#### Integration Points
+
+- **Faction Visibility**: Handles faction-specific detection rules
+- **Interest Management**: Filters entities based on detection range
+- **Spatial Partitioning**: Optimizes detection calculations using grid cells
+
+#### Performance Considerations
+
+- **Server-Authoritative Calculation**: All detection calculations performed server-side
+- **Caching**: Detection ranges are cached until equipment or abilities change
+- **Batch Processing**: Processes detection checks in batches for efficiency
 
 ### Key Components
 
@@ -422,10 +489,3 @@ interface SpatialPartitioningConfig {
 - **Transition Cost**: Entity redistribution has a cost - batched updates minimize impact
 - **Memory Usage**: Variable cell sizes may increase memory overhead - implemented pooling
 - **Network Traffic**: Cell size changes are communicated efficiently with delta compression
-
-### Future Improvements
-
-- Dynamic adaptation rate based on player count
-- Machine learning-based prediction of player movement patterns
-- Integration with day/night cycle for visibility-based adjustments
-- Region-specific adaptation based on map features

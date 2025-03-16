@@ -1,0 +1,78 @@
+services:
+  colyseus:
+    image: colyseus/colyseus:latest
+    container_name: colyseus
+    ports:
+      - "2567:2567"
+    environment:
+      - REDIS_HOST=redis
+      - SUPABASE_URL=http://supabase:8000
+    networks:
+      - planetbyte-net
+    depends_on:
+      - redis
+      - postgres
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - planetbyte-net
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: planetbyte
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - planetbyte-net
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - planetbyte-net
+    depends_on:
+      - colyseus
+      - postgres
+      - client
+
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+    container_name: client
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_WS_URL=ws://colyseus:2567
+      - VITE_API_URL=http://postgres:8000
+    volumes:
+      - ./apps/client:/app/apps/client
+      - ./packages:/app/packages
+      - /app/node_modules
+      - /app/apps/client/node_modules
+      - /app/packages/*/node_modules
+    networks:
+      - planetbyte-net
+
+networks:
+  planetbyte-net:
+    driver: bridge
+
+volumes:
+  redis_data:
+  postgres_data:
